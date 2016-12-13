@@ -8,13 +8,14 @@ uses crt,sysutils;
      car:char;
      end;    }
 
-var fpgn,frempl,foutpgn:textfile;
-    lpgn,alpgn,derlpgn,lrempl,nom,tempnom:string;
+var fpgn,frempl,foutpgn,deleteng,fparam:textfile;
+    lpgn,alpgn,derlpgn,lrempl,nom,tempnom,lparam:string;
     fin:string[5];
     tempnbr,bourech1,bourech2,ntitre,emp,nblect,nbwh,ind,bou,nbrempl
-      ,nbpart,nbnom,indbou,trouv,compt1, valrech,avalrech:longint;
+      ,nbpart,nbnom,indbou,trouv,compt1, valrech,avalrech,nblgn:longint;
     rempsour,rempdest,nomeng,rechnom:array [0..20000] of string;
     nbpartnom,nbrechnom:array [0..20000] of longint;
+    nomfi:array [0..4] of string;
     c:char;
     finfic,aff,finrempl:boolean;
 
@@ -22,9 +23,14 @@ var fpgn,frempl,foutpgn:textfile;
 procedure initfic;
 begin
   clrscr;
-  AssignFile(fpgn,'g:\ratinglist\2012janvier\lentrapide\tout.pgn');
-  AssignFile(foutpgn,'g:\ratinglist\2012janvier\lentrapide\remplout.pgn');
-  AssignFile(frempl,'g:\ratinglist\2012janvier\lentrapide\modif4.txt');
+ { AssignFile(fpgn,'g:\ratinglist\2012janvier\lentrapide\tout2.pgn'); }
+{  AssignFile(fpgn,'g:\ratinglist\2012janvier\lentrapide\cwar.pgn'); }
+  AssignFile(fpgn,nomfi[1]);
+  AssignFile(foutpgn,nomfi[2]);
+  AssignFile(frempl,nomfi[3]);
+  AssignFile(deleteng,nomfi[4]);
+  writeln('assignfile ok');
+
 
   { AssignFile(fpgn,'g:\ratinglist\2012janvier\ccw.pgn');
   AssignFile(foutpgn,'g:\ratinglist\2012janvier\remplout.pgn');
@@ -36,6 +42,7 @@ begin
   reset(fpgn);
   reset(frempl);
   rewrite(foutpgn);
+  rewrite(deleteng);
   end;
 
 procedure initrempl;
@@ -52,12 +59,33 @@ begin
  {  writeln(lrempl, '  ',AnsiQuotedStr(lrempl, '|' ));}
    if  eof (frempl) then finrempl:=true;
   until finrempl;
-  writeln;writeln; writeln;writeln; writeln;writeln;writeln;writeln; writeln;writeln;writeln;
+  writeln;writeln; writeln;
   clrscr;
+  close (frempl);
+
    end;
+
+procedure lireficparam;
+begin
+   AssignFile(fparam,paramstr(1));
+   reset(fparam);
+   for bou:=1 to 4 do begin
+     readln(fparam,lparam);
+     writeln (bou, ' : ',lparam);{readln;}
+     nomfi[bou]:=lparam;
+     end;
+  { readln;   }
+end;
+
 
 procedure init;
 begin
+WriteLn('Program name : ', ParamStr(0));
+writeln ('nb param : ' , paramcount);
+for bou := 1 to ParamCount do
+WriteLn('Param ', bou , ' : ', ParamStr(bou));
+lireficparam;
+writeln('fin lireficparam');
 initfic;
 initrempl;
 lpgn:='';
@@ -80,78 +108,8 @@ end;     }
 
 procedure fermer;
 begin
-   close (fpgn);close(foutpgn);
+   close (fpgn);close(foutpgn); close(deleteng); close (frempl);
    end;
-
-{procedure top40
-begin
-for bourech1:=1 to nbnom
- do begin
-      if nbpartnom[bourech1] > nbrechnom[0]
-        then begin
-                nbrechnom[0]:=nbpartnom[bourech1];
-                rechnom[0]:=nomeng[bourech1];
-                bourech2:=0;
-                while ((bourech<40) and (nbrechnom[bourech1]<)
-                  do begin
-             end;
-
-
-   do begin if
-end;       }
-
-procedure afftop;
-begin
-clrscr;
-valrech:=0;
-avalrech:=9999999;
-
-for bourech2:=1 to 36 do begin
-  for bourech1:=1 to nbnom do
-        if ((nbpartnom[bourech1] > valrech) and  (nbpartnom[bourech1] < avalrech))
-                                  then valrech:=nbpartnom[bourech1];
-
-  for bourech1:=1 to nbnom do if nbpartnom[bourech1] = valrech
-          then writeln ('     ',bourech2:3,'- ',nomeng[bourech1],' - ',valrech);
-  avalrech:=valrech;
-  valrech:=0;
-end;
-
-end;
-
-procedure enrgnom;
-begin
-nom:=copy(lpgn,9,(LastDelimiter(']',lpgn)-10));
-indbou:=0;
-trouv:=0;
-while ((indbou<nbnom) and (trouv=0))
-do begin
-  if nomeng[indbou]=nom then trouv:=1;
-{  writeln(indbou,' ',nomeng[indbou],'=?',nom);}
-  inc(indbou);
-end;
-if trouv=0 then begin
-                 nomeng[nbnom]:=nom;
-               {  write (nom,' '); }
-                 inc(nbnom);
-                { if nbnom mod 100 = 0 then write('nbnom :',nbnom);  }
-                end
-            else begin inc(nbpartnom[indbou-1]);
-                       if nbpartnom[indbou-1] mod 1000=0 then begin
-                                                       { gotoxy(10,37);
-                                                        write('|',nomeng[indbou-1], ' ',nbpartnom[indbou-1],' ');}
-                                                        inc(compt1);
-                                                        { gotoxy(2+((compt1 div 40) mod 2)*40 ,1+(compt1 mod 40));
-                                                        write('                                      ');
-                                                        gotoxy(2+((compt1 div 40) mod 2)*40 ,1+(compt1 mod 40));
-                                                        write('|',nomeng[indbou-1], ' ',nbpartnom[indbou-1],'   ');}
-                                                      {  afftop;  }
-                                                        end;
-                 end;
-
-
-end;
-
 
 
 Begin
@@ -160,24 +118,22 @@ init;
 repeat
    lect;
    if ((leftstr(lpgn , 8) = '[White "') or (leftstr(lpgn , 8) = '[Black "'))
-    then begin for bou:=1 to ind do lpgn:=StringReplace(lpgn,rempsour[bou],rempdest[bou],[rfReplaceAll]);
-               enrgnom;
+    then begin  alpgn:=lpgn;
+                for bou:=1 to ind do lpgn:=StringReplace(lpgn,rempsour[bou],rempdest[bou],[rfReplaceAll]);
+              { enrgnom;  }
                inc(nbpart);
-               if nbpart mod 20000 = 0 then begin {write('*');}
-                                                  if nbpart mod 10000 = 0 then begin
-                                                                            {    top40;}
-                                                                                afftop;
-                                                                                gotoxy (10,42);
-                                                                                write ('- nbpart:',nbpart div 2,'  nblgn:',nblect,'  Nb eng:',nbnom,' -');
+               if nbpart mod 17177= 0 then
+                     begin
+                    { gotoxy (10,42);}
+                    { writeln;}
+                     writeln ('nbpart:',nbpart div 2,'  nblgn:',nblect);
 
-                                                                                end;
-
-                                             end;
-             {  if (alpgn<>lpgn) then
+                     end;
+               if (alpgn<>lpgn) then
                  begin inc(nbrempl);
-                       writeln(foutpgn, lpgn);
-                       if nbrempl mod 1000 = 0 then write('nb: ',nbrempl,' ',lpgn);
-                 end;    }
+                     {  writeln(foutpgn, lpgn); }
+                       if nbrempl mod 5000 = 0 then writeln('nbrempl:',nbrempl,' ',copy(alpgn,9,(LastDelimiter(']',alpgn)-10)),'>',copy(lpgn,9,(LastDelimiter(']',lpgn)-10)));
+                 end;
          end;
 
 
@@ -188,8 +144,7 @@ repeat
      writeln(foutpgn, lpgn);
  until ((nblect>100000000) or (finfic));
 fermer;
-writeln;writeln; writeln;writeln;writeln;
-
+writeln;
 write ('- nbpart:',nbpart div 2,'  nblgn:',nblect,'  Nb eng:',nbnom,' -');
  writeln ('END !!!');
 end.
